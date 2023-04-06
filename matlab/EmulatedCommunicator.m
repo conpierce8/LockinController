@@ -1,11 +1,11 @@
-% Communicator.m
+% EmulatedCommunicator.m
 % encoding: utf-8
 %
-% Abstract base class for communicating with SRS lock-in amplifiers.
+% Emulated lock-in communicator (for testing).
 %
 % Author:   Connor D. Pierce
-% Created:  2023-04-06 13:02:37
-% Modified: 2023-04-06 16:13:06
+% Created:  2023-04-06 16:08:12
+% Modified: 2023-04-06 16:09:33
 %
 % Copyright (c) 2023 Connor D. Pierce
 %
@@ -30,12 +30,12 @@
 % SPDX-License-Identifier: MIT
 
 
-% Abstract class for communicating with SRS lock-in amplifiers.
-%
-% Defines the main types of messages that can be sent to lock-in amplifiers (and the
-% expected type of the response). Subclasses should implement these methods for various
-% different types of communication interfaces, e.g. GPIB or USB.
-classdef Communicator < handle
+% Emulated communication interface.
+classdef EnumlatedCommunicator < Communicator
+
+   properties (SetAccess = private)
+      
+   end
 
    methods
 
@@ -52,10 +52,10 @@ classdef Communicator < handle
          end
 
          arguments (Output)
-            val(1, 1) int;
+            val int;
          end
-
-         throw(MException('Must be implemented by subclass!');
+         
+         val = 0;
       end
 
       % Send command to lock-in and read the real-valued response.
@@ -71,10 +71,10 @@ classdef Communicator < handle
          end
 
          arguments (Output)
-            val double(1, 1);
+            val double;
          end
-
-         throw(MException('Must be implemented by subclass!');
+         
+         val = 0.0;
       end
 
       % Send command to lock-in that requires no response.
@@ -87,7 +87,7 @@ classdef Communicator < handle
             cmd_str string;
          end
 
-         throw(MException('Must be implemented by subclass!');
+         pass
       end
 
       % Send command to lock-in and read two-integer response.
@@ -104,11 +104,12 @@ classdef Communicator < handle
          end
 
          arguments (Output)
-            val1(1, 1) int;
-            val2(1, 1) int;
+            val1 int;
+            val2 int;
          end
-
-         throw(MException('Must be implemented by subclass!');
+         
+         val1 = 0;
+         val2 = 0;
       end
 
    end

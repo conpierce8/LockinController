@@ -5,7 +5,7 @@
 %
 % Author:   Connor D. Pierce
 % Created:  2023-04-06 12:05:50
-% Modified: 2023-04-06 15:50:11
+% Modified: 2023-04-06 16:11:21
 %
 % Copyright (c) 2023 Connor D. Pierce
 %
@@ -48,9 +48,8 @@ classdef Action < handle
             obj Action;
             lockin LockinAmplifier;
          end
-         
-         % Do nothing since this is a generic base class.
-         pass
+
+         throw(MException('Must be implemented by subclass!');
       end
 
       % Obtain JSON representation.
@@ -60,11 +59,8 @@ classdef Action < handle
          arguments
             obj Action;
          end
-         
-         s = struct();
-         s.Type = 'Action';
-         s.Version = Action.version;
-         jsondata = jsonencode(s);
+
+         throw(MException('Must be implemented by subclass!');
       end
 
    end
@@ -79,15 +75,7 @@ classdef Action < handle
             obj: Action
          end
 
-         s = jsondecode(data);
-         if s.version == '0.1'
-            pass
-         else
-            ME = MException('Action: unrecognized version: "%s"', s.version);
-            throw(ME);
-         end
-
-         obj = Action;
+         throw(MException('Must be implemented by subclass!');
       end
 
    end
