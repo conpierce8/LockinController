@@ -31,71 +31,110 @@
     "End of Buffer Mode",
     "Data Storage Trigger Start Mode"
   ],
-  "settings": [
-    {
+  "settings": {
+    "ref.phase-shift": {
       "display_name": "Reference Phase Shift",
       "type": "double",
-      "range": [-180, 180],
+      "values": [-180, 180],
       "unit": "deg",
       "desc": "",
-      "set_str": "PHAS %f\0",
-      "get_str": "PHAS?\0"
+      "set_cmd": "PHAS %f\0",
+      "get_cmd": "PHAS?\0"
     },
-    {
+    "ref.source": {
       "display_name": "Reference Source",
       "type": "list",
-      "range": [0, 1],
       "values": {
         0: "external",
         1: "internal"
       },
+      "unit": "-",
       "desc": "",
       "set_cmd": "FMOD %d\0",
       "get_cmd": "FMOD?\0"
+    },
+    "ref.freq": {
+      "display_name": "Reference Frequency",
+      "type": "double",
+      "values": [0.001, 102000],
+      "unit": "Hz",
+      "desc": "",
+      "set_cmd": "FREQ %f\0",
+      "get_cmd": "FREQ?\0"
+    },
+    "ref.trig": {
+      "display_name": "Reference Trigger",
+      "type": "list",
+      "values": [
+        [0, "Sine zero crossing"],
+        [1, "TTL rising edge"],
+        [2, "TTL falling edge"]
+      ],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "RSLP %d\0",
+      "get_cmd": "RSLP?\0"
+    },
+    "out.det-harm": {
+      "display_name": "Detection Harmonic",
+      "type": "int",
+      "values": [1, 19999],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "HARM %d\0",
+      "get_cmd": "HARM?\0"
+    },
+    "ref.ampl": {
+      "display_name": "Sine Output Amplitude",
+      "type": "double",
+      "values": [0.004, 5.0],
+      "unit": "Vrms",
+      "desc": "",
+      "set_cmd": "SLVL %f\0",
+      "get_cmd": "SLVL?\0"
+    },
+    "input.config": {
+      "display_name": "Input Configuration",
+      "type": "list",
+      "values": [
+        [0, "A"],
+        [1, "A-B"],
+        [2, "I (1 megaohm)"],
+        [3, "I (100 megaohm)"]
+      ],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "ISRC %d\0",
+      "get_cmd": "ISRC?\0"
+    },
+    "": {
+      "display_name": ,
+      "type": ,
+      "values": ,
+      "unit": "",
+      "desc": "",
+      "set_cmd": ,
+      "get_cmd": 
     },
   ],
   "categories": [
     {
       "name": "Reference Signal",
       "settings": [
+        "ref.source",
+        "ref.freq",
         "ref.phase-shift",
-        "ref.source"
+        "ref.trig"
+      ]
+    },
+    {
+      "name": "Output",
+      "settings": [
+        "out.det-harm"
       ]
     }
   ]
 }
-  
-  o = new Option("", "FREQ %f\0", "FREQ?\0");
-  d = new DoubleParameter("Reference Frequency", "Hz", 0.001, 102000);
-  o->addParameter(0, d);
-  settings["Reference Frequency"] = *o;
-  
-  o = new Option("", "RSLP %d\0", "RSLP?\0");
-  l = new ListParameter("Reference Trigger", "-", 0, 2);
-  l->setDisplayValue(0, "sine zero crossing");
-  l->setDisplayValue(1, "TTL rising edge");
-  l->setDisplayValue(2, "TTL falling edge");
-  o->addParameter(0, l);
-  settings["Reference Trigger"] = *o;
-  
-  o = new Option("", "HARM %d\0", "HARM?\0");
-  IntParameter* i = new IntParameter("Detection Harmonic", "-", 1, 19999);
-  o->addParameter(0, i);
-  settings["Detection Harmonic"] = *o;
-  
-  o = new Option("", "SLVL %f\0", "SLVL?\0");
-  d = new DoubleParameter("Sine Output Amplitude", "V", 0.004, 5.0); // FIXED in V1.0.8: max is 5V, not 0.5V
-  o->addParameter(0, d);
-  settings["Sine Output Amplitude"] = *o;
-  
-  o = new Option("", "ISRC %d", "ISRC?");
-  l = new ListParameter("Input Configuration", "-", 0, 3);
-  l->setDisplayValue(0, "A");
-  l->setDisplayValue(1, "A-B");
-  l->setDisplayValue(2, "I (1 megaohm)");
-  l->setDisplayValue(3, "I (100 megaohm)");
-  o->addParameter(0, l);
-  settings["Input Configuration"] = *o;
   
   o = new Option("", "IGND %d", "IGND?");
   l = new ListParameter("Input Shield Grounding", "-", 0, 1);
