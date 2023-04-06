@@ -75,7 +75,7 @@
       "set_cmd": "RSLP %d\0",
       "get_cmd": "RSLP?\0"
     },
-    "out.det-harm": {
+    "sp.det-harm": {
       "display_name": "Detection Harmonic",
       "type": "int",
       "values": [1, 19999],
@@ -107,6 +107,215 @@
       "set_cmd": "ISRC %d\0",
       "get_cmd": "ISRC?\0"
     },
+    "input.shield": {
+      "display_name": "Input Shield Grounding",
+      "type": "list",
+      "values": [
+        [0, "Float"],
+        [1, "Ground"]
+      ],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "IGND %d\0",
+      "get_cmd": "IGND?\0"
+    },
+    "input.coupl": {
+      "display_name": "Input Coupling",
+      "type": "list",
+      "values": [
+        [0, "AC"],
+        [1, "DC"]
+      ],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "ICPL %d\0",
+      "get_cmd": "ICPL?\0"
+    },
+    "input.notch-fltr": {
+      "display_name": "Input Line Notch Filter Status",
+      "type": "list",
+      "values": [
+        [0, "No Filters"],
+        [1, "Line Notch In"],
+        [2, "(2X Line) Notch In"],
+        [3, "Both Notch Filters In"]
+      ],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "ILIN %d\0",
+      "get_cmd": "ILIN?\0"
+    },
+    "sp.sens": {
+      "display_name": "Sensitivity",
+      "type": "list",
+      "values": [
+        [0, "2 nV (fA)"],
+        [1, "5 nV (fA)"],
+        [2, "10 nV (fA)"],
+        [3, "20 nV (fA)"],
+        [4, "50 nV (fA)"],
+        [5, "100 nV (fA)"],
+        [6, "200 nV (fA)"],
+        [7, "500 nV (fA)"],
+        [8, "1 uV (pA)"],
+        [9, "2 uV (pA)"],
+        [10, "5 uV (pA)"],
+        [11, "10 uV (pA)"],
+        [12, "20 uV (pA)"],
+        [13, "50 uV (pA)"],
+        [14, "100 uV (pA)"],
+        [15, "200 uV (pA)"],
+        [16, "500 uV (pA)"],
+        [17, "1 mV (nA)"],
+        [18, "2 mV (nA)"],
+        [19, "5 mV (nA)"],
+        [20, "10 mV (nA)"],
+        [21, "20 mV (nA)"],
+        [22, "50 mV (nA)"],
+        [23, "100 mV (nA)"],
+        [24, "200 mV (nA)"],
+        [25, "500 mV (nA)"],
+        [26, "1 V (uA)"]
+      ],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "SENS %d\0",
+      "get_cmd": "SENS?\0"
+    },
+    "sp.dyn-res": {
+      "display_name": "Dynamic Reserve Mode",
+      "type": "list",
+      "values": [
+        [0, "High Reserve"],
+        [1, "Normal"],
+        [2, "Low Noise"]
+      ],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "RMOD %d\0",
+      "get_cmd": "RMOD?\0"
+    },
+    "sp.time-const": {
+      "display_name": "Time Constant",
+      "type": "list[int,double]",
+      "values": [
+        [0, 0.000010],
+        [1, 0.000030],
+        [2, 0.000100],
+        [3, 0.000300],
+        [4, 0.001],
+        [5, 0.003],
+        [6, 0.010],
+        [7, 0.030],
+        [8, 0.100],
+        [9, 0.300],
+        [10, 1],
+        [11, 3],
+        [12, 10],
+        [13, 30],
+        [14, 100],
+        [15, 300],
+        [16, 1000],
+        [17, 3000],
+        [18, 10000],
+        [19, 30000],
+      ],
+      "unit": "s",
+      "desc": "",
+      "set_cmd": "OFLT %d\0",
+      "get_cmd": "OFLT?\0"
+    },
+    "sp.filter": {
+      "display_name": "Low Pass Filter Slope",
+      "type": "list[int,string]",
+      "values": [
+        [0, "6 dB/oct"],
+        [1, "12 dB/oct"],
+        [2, "18 dB/oct"],
+        [3, "24 dB/oct"]
+      ],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "OFSL %d\0",
+      "get_cmd": "OFSL?\0"
+    },
+    "sp.sync-fltr": {
+      "display_name": "Synchronous Filter Status",
+      "type": "list[int,string]",
+      "values": [
+        [0, "No synchronous filtering"],
+        [1, "Synchronous filtering below 200Hz"]
+      ],
+      "unit": "-",
+      "desc": "",
+      "set_cmd": "SYNC %d\0",
+      "get_cmd": "SYNC?\0"
+    },
+    "displ.ch1": {
+      "display_name": ["Displayed Value", "Ratio"],
+      "type": ["list[int,string]", "list[int,string]"],
+      "values": [
+        [
+          [0, "X"],
+          [1, "R"],
+          [2, "X Noise"],
+          [3, "Aux In 1"],
+          [4, "Aux In 2"]
+        ],
+        [
+          [0, "none"],
+          [1, "Aux In 1"],
+          [2, "Aux In 2"]
+        ]
+      ],
+      "unit": ["-", "-"],
+      "desc": "CH1 ",
+      "set_cmd": "DDEF 1,%d,%d\0",
+      "get_cmd": "DDEF? 1\0"
+    },
+    "displ.ch2": {
+      "display_name": ["CH2 Displayed Value", "CH2 Ratio"],
+      "type": ["list[int,string]", "list[int,string]"],
+      "values": [
+        [
+          [0, "Y"],
+          [1, "Theta"],
+          [2, "Y Noise"],
+          [3, "Aux In 3"],
+          [4, "Aux In 4"]
+        ],
+        [
+          [0, "none"],
+          [1, "Aux In 3"],
+          [2, "Aux In 4"]
+        ]
+      ],
+      "unit": ["-", "-"],
+      "set_cmd": "DDEF 2,%d,%d\0",
+      "get_cmd": "DDEF? 2\0"
+    },
+    "out.ch1": {
+      "display_name": "CH1 Output Quantity",
+      "type": "list[int,string]",
+      "values": [
+        [0, "CH 1 Display"],
+        [1, "X"]
+      ],
+      "unit": "-",
+      "set_cmd": "FPOP 1,%d\0",
+      "get_cmd": "FPOP? 1\0"
+    },
+    "out.ch2": {
+      "display_name": "CH2 Output Quantity",
+      "type": "list[int,string]",
+      "values": [
+        [0, "CH 2 Display"],
+        [1, "Y"]
+      ],
+      "unit": "-",
+      "set_cmd": "FPOP 2,%d\0",
+      "get_cmd": "FPOP? 2\0"
+    },
     "": {
       "display_name": ,
       "type": ,
@@ -116,7 +325,7 @@
       "set_cmd": ,
       "get_cmd": 
     },
-  ],
+  },
   "categories": [
     {
       "name": "Reference Signal",
@@ -135,161 +344,13 @@
     }
   ]
 }
-  
-  o = new Option("", "IGND %d", "IGND?");
-  l = new ListParameter("Input Shield Grounding", "-", 0, 1);
-  l->setDisplayValue(0, "Float");
-  l->setDisplayValue(1, "Ground");
-  o->addParameter(0, l);
-  settings["Input Shield Grounding"] = *o;
-  
-  o = new Option("", "ICPL %d", "ICPL?");
-  l = new ListParameter("Input Coupling", "-", 0, 1);
-  l->setDisplayValue(0, "AC");
-  l->setDisplayValue(1, "DC");
-  o->addParameter(0, l);
-  settings["Input Coupling"] = *o;
-  
-  o = new Option("", "ILIN %d", "ILIN?");
-  l = new ListParameter("Input Line Notch Filter Status", "-", 0, 1);
-  l->setDisplayValue(0, "No Filters");
-  l->setDisplayValue(1, "Line Notch In");
-  l->setDisplayValue(2, "2xLine Notch In");
-  l->setDisplayValue(3, "Both Notch Filters In");
-  o->addParameter(0, l);
-  settings["Input Line Notch Filter Status"] = *o;
-  
-  o = new Option("", "SENS %d", "SENS?");
-  l = new ListParameter("Sensitivity", "-", 0, 26);
-  l->setDisplayValue(0, "2 nV (fA)");
-  l->setDisplayValue(1, "5 nV (fA)");
-  l->setDisplayValue(2, "10 nV (fA)");
-  l->setDisplayValue(3, "20 nV (fA)");
-  l->setDisplayValue(4, "50 nV (fA)");
-  l->setDisplayValue(5, "100 nV (fA)");
-  l->setDisplayValue(6, "200 nV (fA)");
-  l->setDisplayValue(7, "500 nV (fA)");
-  l->setDisplayValue(8, "1 uV (pA)");
-  l->setDisplayValue(9, "2 uV (pA)");
-  l->setDisplayValue(10, "5 uV (pA)");
-  l->setDisplayValue(11, "10 uV (pA)");
-  l->setDisplayValue(12, "20 uV (pA)");
-  l->setDisplayValue(13, "50 uV (pA)");
-  l->setDisplayValue(14, "100 uV (pA)");
-  l->setDisplayValue(15, "200 uV (pA)");
-  l->setDisplayValue(16, "500 uV (pA)");
-  l->setDisplayValue(17, "1 mV (nA)");
-  l->setDisplayValue(18, "2 mV (nA)");
-  l->setDisplayValue(19, "5 mV (nA)");
-  l->setDisplayValue(20, "10 mV (nA)");
-  l->setDisplayValue(21, "20 mV (nA)");
-  l->setDisplayValue(22, "50 mV (nA)");
-  l->setDisplayValue(23, "100 mV (nA)");
-  l->setDisplayValue(24, "200 mV (nA)");
-  l->setDisplayValue(25, "500 mV (nA)");
-  l->setDisplayValue(26, "1 V (uA)");
-  o->addParameter(0, l);
-  settings["Sensitivity"] = *o;
-  
-  o = new Option("", "RMOD %d", "RMOD?");
-  l = new ListParameter("Dynamic Reserve Mode", "-", 0, 2);
-  l->setDisplayValue(0, "High Reserve");
-  l->setDisplayValue(1, "Normal");
-  l->setDisplayValue(2, "Low Noise");
-  o->addParameter(0, l);
-  settings["Dynamic Reserve Mode"] = *o;
-  
-  o = new Option("", "OFLT %d", "OFLT?");
-  l = new ListParameter("Time Constant", "-", 0, 19);
-  l->setDisplayValue(0, "10 us");
-  l->setDisplayValue(1, "30 us");
-  l->setDisplayValue(2, "100 us");
-  l->setDisplayValue(3, "300 us");
-  l->setDisplayValue(4, "1 ms");
-  l->setDisplayValue(5, "3 ms");
-  l->setDisplayValue(6, "10 ms");
-  l->setDisplayValue(7, "30 ms");
-  l->setDisplayValue(8, "100 ms");
-  l->setDisplayValue(9, "300 ms");
-  l->setDisplayValue(10, "1 s");
-  l->setDisplayValue(11, "3 s");
-  l->setDisplayValue(12, "10 s");
-  l->setDisplayValue(13, "30 s");
-  l->setDisplayValue(14, "100 s");
-  l->setDisplayValue(15, "300 s");
-  l->setDisplayValue(16, "1 ks");
-  l->setDisplayValue(17, "3 ks");
-  l->setDisplayValue(18, "10 ks");
-  l->setDisplayValue(19, "30 ks");
-  o->addParameter(0, l);
-  settings["Time Constant"] = *o;
-  
-  o = new Option("", "OFSL %d", "OFSL?");
-  l = new ListParameter("Low Pass Filter Slope", "-", 0, 3);
-  l->setDisplayValue(0, "6 dB/oct");
-  l->setDisplayValue(1, "12 dB/oct");
-  l->setDisplayValue(2, "18 dB/oct");
-  l->setDisplayValue(3, "24 dB/oct");
-  o->addParameter(0, l);
-  settings["Low Pass Filter Slope"] = *o;
-  
-  o = new Option("", "SYNC %d", "SYNC?");
-  l = new ListParameter("Synchronous Filter Status", "-", 0, 1);
-  l->setDisplayValue(0, "No synchronous filtering");
-  l->setDisplayValue(1, "Synchronous filtering below 200Hz");
-  o->addParameter(0, l);
-  settings["Synchronous Filter Status"] = *o;
-  
-  o = new Option("CH1 ", "DDEF 1,%d,%d", "DDEF? 1");
-  l = new ListParameter("Displayed Value", "-", 0, 4);
-  l->setDisplayValue(0, "X");
-  l->setDisplayValue(1, "R");
-  l->setDisplayValue(2, "X Noise");
-  l->setDisplayValue(3, "Aux In 1");
-  l->setDisplayValue(4, "Aux In 2");
-  ListParameter* l2 = new ListParameter("Ratio", "-", 0, 2);
-  l2->setDisplayValue(0, "none");
-  l2->setDisplayValue(1, "Aux In 1");
-  l2->setDisplayValue(2, "Aux In 2");
-  o->addParameter(0, l);
-  o->addParameter(1, l2);
-  settings["CH1 display settings"] = *o;
-  
-  o = new Option("CH2 ", "DDEF 2,%d,%d", "DDEF? 2");
-  l = new ListParameter("Displayed Value", "-", 0, 4);
-  l->setDisplayValue(0, "Y");
-  l->setDisplayValue(1, "Theta");
-  l->setDisplayValue(2, "Y Noise");
-  l->setDisplayValue(3, "Aux In 3");
-  l->setDisplayValue(4, "Aux In 4");
-  l2 = new ListParameter("Ratio", "-", 0, 2);
-  l2->setDisplayValue(0, "none");
-  l2->setDisplayValue(1, "Aux In 3");
-  l2->setDisplayValue(2, "Aux In 4");
-  o->addParameter(0, l);
-  o->addParameter(1, l2);
-  settings["CH2 display settings"] = *o;
-  
-  o = new Option("CH1 ", "FPOP 1,%d", "FPOP? 1");
-  l = new ListParameter("Output Quantity", "-", 0, 1);
-  l->setDisplayValue(0, "CH 1 Display");
-  l->setDisplayValue(1, "X");
-  o->addParameter(0, l);
-  settings["CH1 Output Quantity"] = *o;
-  
-  o = new Option("CH2 ", "FPOP 2,%d", "FPOP? 2");
-  l = new ListParameter("Output Quantity", "-", 0, 1);
-  l->setDisplayValue(0, "CH 2 Display");
-  l->setDisplayValue(1, "Y");
-  o->addParameter(0, l);
-  settings["CH2 Output Quantity"] = *o;
-  
+
   o = new Option("X Output ", "OEXP 1,%f,%d", "OEXP? 1");
   d = new DoubleParameter("Offset", "%", -105, 105);
   l = new ListParameter("Expand", "-", 0, 2);
-  l->setDisplayValue(0, "No Expand");
-  l->setDisplayValue(1, "Expand by 10");
-  l->setDisplayValue(2, "Expand by 100");
+        [0, "No Expand");
+        [1, "Expand by 10");
+        [2, "Expand by 100");
   o->addParameter(0, d);
   o->addParameter(1, l);
   settings["X output settings"] = *o;
@@ -298,9 +359,9 @@
   o = new Option("Y Output ", "OEXP 2,%f,%d", "OEXP? 2");
   d = new DoubleParameter("Offset", "%", -105, 105);
   l = new ListParameter("Expand", "-", 0, 2);
-  l->setDisplayValue(0, "No Expand");
-  l->setDisplayValue(1, "Expand by 10");
-  l->setDisplayValue(2, "Expand by 100");
+        [0, "No Expand");
+        [1, "Expand by 10");
+        [2, "Expand by 100");
   o->addParameter(0, d);
   o->addParameter(1, l);
   settings["Y output settings"] = *o;
@@ -309,9 +370,9 @@
   o = new Option("R Output ", "OEXP 2,%f,%d", "OEXP? 2");
   d = new DoubleParameter("Offset", "%", -105, 105);
   l = new ListParameter("Expand", "-", 0, 2);
-  l->setDisplayValue(0, "No Expand");
-  l->setDisplayValue(1, "Expand by 10");
-  l->setDisplayValue(2, "Expand by 100");
+        [0, "No Expand");
+        [1, "Expand by 10");
+        [2, "Expand by 100");
   o->addParameter(0, d);
   o->addParameter(1, l);
   settings["R output settings"] = *o;
@@ -338,35 +399,35 @@
   
   o = new Option("", "SRAT %d", "SRAT?");
   l = new ListParameter("Data Storage Sample Rate", "-", 0, 14);
-  l->setDisplayValue(0, "62.5 mHz");
-  l->setDisplayValue(1, "125 mHz");
-  l->setDisplayValue(2, "250 mHz");
-  l->setDisplayValue(3, "500 mHz");
-  l->setDisplayValue(4, "1 Hz");
-  l->setDisplayValue(5, "2 Hz");
-  l->setDisplayValue(6, "4 Hz");
-  l->setDisplayValue(7, "8 Hz");
-  l->setDisplayValue(8, "16 Hz");
-  l->setDisplayValue(9, "32 Hz");
-  l->setDisplayValue(10, "64 Hz");
-  l->setDisplayValue(11, "128 Hz");
-  l->setDisplayValue(12, "256 Hz");
-  l->setDisplayValue(13, "512 Hz");
-  l->setDisplayValue(14, "Trigger");
+        [0, "62.5 mHz");
+        [1, "125 mHz");
+        [2, "250 mHz");
+        [3, "500 mHz");
+        [4, "1 Hz");
+        [5, "2 Hz");
+        [6, "4 Hz");
+        [7, "8 Hz");
+        [8, "16 Hz");
+        [9, "32 Hz");
+        [10, "64 Hz");
+        [11, "128 Hz");
+        [12, "256 Hz");
+        [13, "512 Hz");
+        [14, "Trigger");
   o->addParameter(0, l);
   settings["Data Storage Sample Rate"] = *o;
   
   o = new Option("", "SEND %d", "SEND?");
   l = new ListParameter("End of Buffer Mode", "-", 0, 1);
-  l->setDisplayValue(0, "1 Shot");
-  l->setDisplayValue(1, "Loop");
+        [0, "1 Shot");
+        [1, "Loop");
   o->addParameter(0, l);
   settings["End of Buffer Mode"] = *o;
   
   o = new Option("", "TSTR %d", "TSTR?");
   l = new ListParameter("Data Storage Trigger Start Mode", "-", 0, 1);
-  l->setDisplayValue(0, "Trigger Start Feature Off");
-  l->setDisplayValue(1, "Trigger Starts the Scan");
+        [0, "Trigger Start Feature Off");
+        [1, "Trigger Starts the Scan");
   o->addParameter(0, l);
   settings["Data Storage Trigger Start Mode"] = *o;
 }  
