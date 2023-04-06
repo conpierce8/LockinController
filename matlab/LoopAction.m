@@ -1,11 +1,11 @@
-% Action.m
+% LoopAction.m
 % encoding: utf-8
 %
-% Abstract base class for an action performed in a parametric sweep.
+% Loop over a parameter in a parametric sweep.
 %
 % Author:   Connor D. Pierce
-% Created:  2023-04-06 12:05:50
-% Modified: 2023-04-06 15:50:11
+% Created:  2023-04-06 15:26:02
+% Modified: 2023-04-06 15:50:55
 %
 % Copyright (c) 2023 Connor D. Pierce
 %
@@ -30,11 +30,12 @@
 % SPDX-License-Identifier: MIT
 
 
-% Abstract base class of all actions that can be performed in a parametric sweep.
-classdef Action < handle
+% Loop over a parameter.
+classdef LoopAction < SequenceAction
 
-   properties (Static, GetAccess = private, SetAccess = private)
-      version = '0.1';
+   % Private properties
+   properties (GetAccess = private, SetAccess = private)
+      subactions(1, :) Action;
    end
 
    methods
@@ -51,43 +52,6 @@ classdef Action < handle
          
          % Do nothing since this is a generic base class.
          pass
-      end
-
-      % Obtain JSON representation.
-      %
-      % :parameter obj: (Action)
-      function jsondata = dump(obj)
-         arguments
-            obj Action;
-         end
-         
-         s = struct();
-         s.Type = 'Action';
-         s.Version = Action.version;
-         jsondata = jsonencode(s);
-      end
-
-   end
-
-   methods (Static)
-
-      % Load Action from JSON representation.
-      %
-      % :parameter data: (string) JSON representation of the Action
-      function obj = load(data)
-         arguments(Output)
-            obj: Action
-         end
-
-         s = jsondecode(data);
-         if s.version == '0.1'
-            pass
-         else
-            ME = MException('Action: unrecognized version: "%s"', s.version);
-            throw(ME);
-         end
-
-         obj = Action;
       end
 
    end

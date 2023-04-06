@@ -5,7 +5,7 @@
 %
 % Author:   Connor D. Pierce
 % Created:  2023-04-06 12:16:43
-% Modified: 2023-04-06 12:32:00
+% Modified: 2023-04-06 13:35:29
 %
 % Copyright (c) 2023 Connor D. Pierce
 %
@@ -30,21 +30,40 @@
 % SPDX-License-Identifier: MIT
 
 
+% Pause for a specified duration during a parametric sweep.
 classdef WaitAction < Action
-    % Pause for a specified duration during a parametric sweep.
 
-    properties (GetAccess = private)
-        waitTime(1) double {mustBeNonnegative} = 0;
-    end
+   properties (GetAccess = private)
+      waitTime(1) double {mustBeNonnegative} = 0;
+   end
 
-    methods
-        function obj = WaitAction(waitTime)
-            obj.waitTime = waitTime
-        end
+   methods
 
-        function run(obj)
-            pause(obj.waitTime);
-        end
-    end
+      % Create a WaitAction.
+      %
+      % :parameter waitTime: (double) amount of time (in seconds) to pause
+      function obj = WaitAction(waitTime)
+         arguments
+            waitTime double {mustBeNonnegative};
+         end
+         
+         obj.waitTime = waitTime
+         
+         % TODO: different call signature to specify automatic wait time
+      end
+
+      function run(obj, lockin)
+         arguments
+            obj WaitAction;
+            lockin LockinAmplifier;
+         end
+         
+         % Pause for the requested number of seconds
+         pause(obj.waitTime);
+         
+         % TODO: automatically calculate appropriate wait time for current lockin state
+      end
+
+   end
 
 end
