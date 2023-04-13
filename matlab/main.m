@@ -64,6 +64,8 @@ function data = main
     
    % Create figure for visualization
    fig = figure();
+   ax1 = subplot(2, 1, 1);
+   ax2 = subplot(2, 1, 2);
 
 
    % Automatic time constant and wait time
@@ -119,7 +121,8 @@ function data = main
 
                % Update visualization
                updateView( ...
-                  fig, ...
+                  ax1, ...
+                  ax2, ...
                   data, ...
                   repeats_ampl, ...
                   n_ampl, ...
@@ -137,6 +140,7 @@ function data = main
 
    % Save the recorded data as text file
    outputfile = fopen(strcat(outputpathname, outputfilename), 'w');
+   fprintf(outputfile, 'Amplitude\tFrequency\tR\tTheta\n');
    fprintf(outputfile, '%.4e\t%.4e\t%.4e\t%.4e\n', data');
    fclose(outputfile);
 
