@@ -5,7 +5,7 @@
 %
 % Author:   Connor D. Pierce
 % Created:  2023-04-10 12:56:55
-% Modified: 2023-04-10 17:26:36
+% Modified: 2023-04-17 16:19:28
 %
 % Copyright (c) 2023 Connor D. Pierce
 %
@@ -36,8 +36,8 @@ function data = main
 
 
    % Sweep parameters
-   all_ampl = logspace(-1, 0, 2);     % EDIT THIS LINE TO CONTROL AMPLITUDE
-   all_freq = linspace(6500, 6700, 2);  % EDIT THIS LINE TO CONTROL FREQUENCY
+   all_ampl = logspace(-1, 0, 8);     % EDIT THIS LINE TO CONTROL AMPLITUDE
+   all_freq = linspace(6500, 6700, 15);  % EDIT THIS LINE TO CONTROL FREQUENCY
    repeats_ampl = 1;                      % EDIT THIS LINE TO CONTROL MULTIPLICITY
    repeats_freq = 1;                      % EDIT THIS LINE TO CONTROL MULTIPLICITY
    n_ampl = size(all_ampl, 2);
@@ -50,7 +50,7 @@ function data = main
 
    % Select an output file
    [outputfilename, outputpathname] = uiputfile( ...
-      '*.txt', 'Save as...', strcat(outputfilename, outputpathname) ...
+      '*.txt', 'Save as...', strcat(outputpathname, outputfilename) ...
    );
    if outputfilename == 0
       return;
@@ -66,6 +66,12 @@ function data = main
    fig = figure();
    ax1 = subplot(2, 1, 1);
    ax2 = subplot(2, 1, 2);
+   hold(ax1, 'on');
+   hold(ax2, 'on');
+   xlabel(ax1, 'Frequency [Hz]');
+   ylabel(ax1, 'Amplitude [V]');
+   xlabel(ax2, 'Frequency [Hz]');
+   ylabel(ax2, 'Phase [deg]');
 
 
    % Automatic time constant and wait time

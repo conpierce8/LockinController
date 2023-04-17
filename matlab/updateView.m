@@ -5,7 +5,7 @@
 %
 % Author:   Connor D. Pierce
 % Created:  2023-04-10 15:13:57
-% Modified: 2023-04-10 15:16:41
+% Modified: 2023-04-17 16:24:33
 %
 % Copyright (c) 2023 Connor D. Pierce
 %
@@ -47,7 +47,17 @@ function updateView( ...
    i_f ...
 )
    arguments (Input)
-      %%TODO: implement argument checking
+      ax1;
+      ax2;
+      data double;
+      repeats_ampl(1, 1) int8;
+      n_ampl(1, 1) int8;
+      repeats_freq(1, 1) int8;
+      n_freq(1, 1) int8;
+      r_A(1, 1) int8;
+      i_A(1, 1) int8;
+      r_f(1, 1) int8;
+      i_f(1, 1) int8;
    end
 
 
@@ -56,8 +66,8 @@ function updateView( ...
    chil1 = get(ax1, 'Children');
    chil2 = get(ax2, 'Children');
 
-   N_lines1 = length(chil1, 1);
-   N_lines2 = length(chil2, 2);
+   N_lines1 = size(chil1, 1);
+   N_lines2 = size(chil2, 1);
 
    if N_lines1 ~= N_lines2
       % For now, just print a warning if the numbers don't match. Maybe change this in
@@ -75,6 +85,33 @@ function updateView( ...
    );
 
 
-   % Take one of two actions: either update the 
-   if N_lines ~= (N_complete + 1) && N_lines 
+   % Update the existing curves or create a new curve, depending on the number of
+   % completed sweeps.
+   rowA = ( ...
+      (r_A - 1) * (n_ampl * repeats_freq * n_freq) ...
+      + (i_A - 1) * (repeats_freq * n_freq) ...
+      + (r_f - 1) * (n_freq) ...
+      + 1 ...
+   );
+   rowB = ( ...
+      (r_A - 1) * (n_ampl * repeats_freq * n_freq) ...
+      + (i_A - 1) * (repeats_freq * n_freq) ...
+      + (r_f - 1) * (n_freq) ...
+      + i_f ...
+   );
+   if N_lines == N_complete
+      % Need to add a new curve
+      colors = parula(n_ampl);
+      plot(ax1, data(rowA:rowB, 2), data(rowA:rowB, 3), '.-', 'Color', colors(i_A, :));
+      plot(ax2, data(rowA:rowB, 2), data(rowA:rowB, 4), '.-', 'Color', colors(i_A, :));
+   elseif N_lines == N_complete + 1
+      % Update the curve for the current sweep
+      set(chil1(1), 'XData', data(rowA:rowB, 2));
+      set(chil1(1), 'YData', data(rowA:rowB, 3));
+      set(chil2(1), 'XData', data(rowA:rowB, 2));
+      set(chil2(1), 'YData', data(rowA:rowB, 4));
+   else
+      % This case should not occur; print a warning
+      fprintf('Number of plot curves does not match number of sweeps.\n');
+   end
 end
