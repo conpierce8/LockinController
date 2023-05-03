@@ -31,14 +31,32 @@
 
 
 # Imports
+import lockin
 import pyvisa
 
 
 # Functions
 def auto_time_const(sr860, freq, atten_2f, filterType):
+    ##TODO: implement this correctly
+    waitTime = 1;
 
-   ##TODO: implement this correctly
-   waitTime = 1;
+
+def dmma_time_const(
+    lockin: lockin.devices.Lockin,
+    min_ampl: float,
+    ampl: float,
+    freq: float,
+    atten_2f: tuple[float, float],
+    filterType: float,
+):
+    """Set time constant for DMMA experiments."""
+
+    atten = min(atten_2f[1], atten_2f[0] + 20*np.log10(ampl / min_ampl))
+    octets = atten / filterType
+    tau_p = 2 ** octets / (4 * np.pi * freq)
+    tc = lockin.time_const_idx(tau_p)
+    lockin.time_const = tc
+    return lockin.time_const_value(tc)
 
 
 def connect_to_lockin(model):
@@ -109,17 +127,17 @@ def set_frequency(lockin, freq):
 
 
 def updateView(
-   ax1,
-   ax2,
-   data,
-   repeats_ampl,
-   n_ampl,
-   repeats_freq,
-   n_freq,
-   r_A,
-   i_A,
-   r_f,
-   i_f
+    ax1,
+    ax2,
+    data,
+    repeats_ampl,
+    n_ampl,
+    repeats_freq,
+    n_freq,
+    r_A,
+    i_A,
+    r_f,
+    i_f,
 ):
     """Update the data view."""
 
@@ -164,3 +182,15 @@ def updateView(
     else:
         # This case should not occur; print a warning
         print("Number of plot curves does not match number of sweeps.\n")
+
+
+def update_view_dmma(ax1, data, row):
+    """Update the data view."""
+
+    if row == 0:
+        ax1.scatter(data[0, 0], data[0, 1], 'o', c=data[0, 2] / data[0, 3])
+    else:
+        h = ax1.get_children()[0]
+        h.set_xdata(data[:row + 1, 0])
+        h.set_ydata(data[:row + 1, 1])
+        h.set_cdata(data[:row + 1, 2] / data[:row + 1, 3])
