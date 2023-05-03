@@ -33,6 +33,7 @@
 
 
 # Imports
+import numpy as np
 import pyvisa
 
 
@@ -107,11 +108,6 @@ class Lockin:
         return float(freq_str)
 
     @property
-    def ref_phase(self):
-        resp = self._visa_dev.query("PHAS?")
-        return float(resp)
-
-    @property
     def sync_filt(self):
         resp = self._visa_dev.query("SYNC?")
         if resp == "0":
@@ -154,6 +150,11 @@ class Lockin:
             raise RuntimeError("Multiple SR830s found; please specify s/n")
         else:
             self._visa_dev = rm.open_resource(res[candidates[0]])
+
+    def disconnect(self):
+        if self._visa_dev is not None:
+            self._visa_dev.close()
+            self._visa_dev = None
 
     def _unexpected(self, resp):
         return RuntimeError("Unexpected lockin response: '{0:s}'".format(resp))
@@ -206,12 +207,12 @@ class SR830(Lockin):
 
     @det_harm.setter
     def det_harm(self, harm):
-        if i < 1 or i > 19999:
+        if harm < 1 or harm > 19999:
             raise ValueError("Harmonic must be >= 1 and <= 19999")
         else:
             self._visa_dev.write("HARM {0:d}".format(harm))
 
-    def get_ampl_phase(self):
+    def get_ampl_phas(self):
         resp = self._visa_dev.query("SNAP? 3,4")
         vals = resp.split(",")
         return float(vals[0]), float(vals[1])
@@ -243,6 +244,11 @@ class SR830(Lockin):
         else:
             raise ValueError("Invalid input config: '{0:s}'".format(config))
         self._visa_dev.write("ISRC {0:d}".format(value))
+
+    @property
+    def ref_phase(self):
+        resp = self._visa_dev.query("PHAS?")
+        return float(resp)
 
     @ref_phase.setter
     def ref_phase(self, p):
@@ -311,7 +317,7 @@ class SR830(Lockin):
             self._visa_dev.write("OFLT {0:d}".format(tc))
 
     def time_const_value(self, idx):
-        if tc < 0 or tc > 19:
+        if idx < 0 or idx > 19:
             raise ValueError("tc must be >= 0 or <= 19")
         else:
             return self._time_const[idx]
@@ -378,7 +384,7 @@ class SR860(Lockin):
 
     @det_harm.setter
     def det_harm(self, harm):
-        if i < 1 or i > 99:
+        if harm < 1 or harm > 99:
             raise ValueError("Harmonic must be >= 1 and <= 99")
         else:
             self._visa_dev.write("HARM {0:d}".format(harm))
@@ -397,7 +403,7 @@ class SR860(Lockin):
         else:
             self._visa_dev.write("OFLT {0:d}".format(filt))
 
-    def get_ampl_phase(self):
+    def get_ampl_phas(self):
         resp = self._visa_dev.query("SNAP? 2,3")
         vals = resp.split(",")
         return float(vals[0]), float(vals[1])
@@ -442,6 +448,11 @@ class SR860(Lockin):
             self._visa_dev.write("ICUR 1")
         else:
             raise ValueError("Invalid input config: '{0:s}'".format(config))
+
+    @property
+    def ref_phase(self):
+        resp = self._visa_dev.query("PHAS?")
+        return float(resp)
 
     @ref_phase.setter
     def ref_phase(self, p):
@@ -523,7 +534,7 @@ class SR860(Lockin):
             self._visa_dev.write("OFLT {0:d}".format(tc))
 
     def time_const_value(self, idx):
-        if tc < 0 or tc > 21:
+        if idx < 0 or idx > 21:
             raise ValueError("tc must be >= 0 or <= 21")
         else:
             return self._time_const[idx]

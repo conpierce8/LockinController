@@ -164,7 +164,7 @@ def ampl_freq_sweep(
 
 
 def dmma_sweep(
-    limits: tuple[tuple[float, float], tuple[float, float]] = ((0.02, 2.0), (10, 1000))
+    limits: tuple[tuple[float, float], tuple[float, float]] = ((0.02, 2.0), (10, 1000)),
     n: tuple[tuple[int, int], tuple[int, int]] = ((3, 201), (31, 9)),
     filename: str = "Test",
     models: tuple[str, str] = ("SR830", "SR860"),
@@ -203,14 +203,16 @@ def dmma_sweep(
         lockin.input_coupling = "ac"
         lockin.ref_phase = 0
         lockin.sync_filt = True
-    lockin[0].ref_source = "int"
-    lockin[1].ref_source = "ext"
+    lockins[0].ref_source = "int"
+    lockins[1].ref_source = "ext"
 
     # Create figure for visualization
-    fig = plt.figure();
-    ax1 = fig.add_subplot(1, 1, 1)
-    ax1.set_xlabel('Frequency [Hz]')
-    ax1.set_ylabel('Amplitude [V]')
+    plt.ion()
+    plt.figure()
+    plt.subplot(1, 1, 1)
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Amplitude [V]')
+    plt.show(block=False)
 
     # Automatic time constant and wait time
     autoTimeConst = True     # Set this variable to False to disable auto time-constant
@@ -230,21 +232,22 @@ def dmma_sweep(
 
     all_ampl = np.logspace(np.log10(limits[0][0]), np.log10(limits[0][1]), n[0][0])
     all_freq = np.logspace(np.log10(limits[1][0]), np.log10(limits[1][1]), n[0][1])
+    h = plt.scatter(data_d[:, 0], data_d[:, 1], c=data_d[:, 2])
     for i_A in range(n[0][0]):
         # Set the current amplitude
-        ampl = all_ampl[i_A]
-        ampl_actual = lockin[0].ref_ampl = ampl
+        lockins[0].ref_ampl = all_ampl[i_A]
+        ampl_actual = lockins[0].ref_ampl
 
         # Loop over frequency
         for i_f in range(n[0][1]):
             # Set the current frequency
             freq = all_freq[i_f]
-            freq_actual = lockin[0].ref_freq = freq
+            freq_actual = lockins[0].ref_freq = freq
 
             # Pause and wait for lockin output to settle
             if autoTimeConst:
                 waitTime = wait_factor * dmma_time_const(
-                    lockins[0], limits[0][0], ampl, freq, atten_2f, slope
+                    lockins, limits[0][0], ampl_actual, freq, atten_2f, slope
                 )
                 time.sleep(waitTime)  # Comment this line to use auto wait-time
             else:
@@ -265,8 +268,7 @@ def dmma_sweep(
             data_f[row, 3] = force[1]
 
             # Update visualization
-            update_view_dmma(ax1, data_d, row)
-
+            update_view_dmma(h, data_d, data_f, row)
             row += 1
     if filename.endswith(".txt"):
         outputfilename_d = filename[:-4] + "a_Displ.txt"
@@ -297,21 +299,22 @@ def dmma_sweep(
 
     all_ampl = np.logspace(np.log10(limits[0][0]), np.log10(limits[0][1]), n[1][0])
     all_freq = np.logspace(np.log10(limits[1][0]), np.log10(limits[1][1]), n[1][1])
+    h = plt.scatter(data_d[:, 0], data_d[:, 1], c=data_d[:, 2])
     for i_f in range(n[1][1]):
         # Set the current frequency
-        lockin[0].ref_freq = all_freq[i_f]
-        freq_actual = lockin[0].ref_freq
+        lockins[0].ref_freq = all_freq[i_f]
+        freq_actual = lockins[0].ref_freq
 
         # Loop over frequency
         for i_A in range(n[1][0]):
             # Set the current amplitude
-            lockin[0].ref_ampl = all_ampl[i_A]
-            ampl_actual = lockin[0].ref_ampl
+            lockins[0].ref_ampl = all_ampl[i_A]
+            ampl_actual = lockins[0].ref_ampl
 
             # Pause and wait for lockin output to settle
             if autoTimeConst:
                 waitTime = wait_factor * dmma_time_const(
-                    lockins[0], limits[0][0], ampl, freq, atten_2f, slope
+                    lockins, limits[0][0], ampl_actual, freq, atten_2f, slope
                 )
                 time.sleep(waitTime)  # Comment this line to use auto wait-time
             else:
@@ -331,10 +334,9 @@ def dmma_sweep(
             data_f[row, 2] = force[0]
             data_f[row, 3] = force[1]
 
-            row += 1
-
             # Update visualization
-            update_view_dmma(ax1, data_d, row)
+            update_view_dmma(h, data_d, data_f, row)
+            row += 1
 
     # Save the recorded data as text file
     if filename.endswith(".txt"):
@@ -357,3 +359,6 @@ def dmma_sweep(
         fmt="%.4e",
         delimiter="\t",
     )
+
+    for lockin in lockins:
+        lockin.disconnect()

@@ -32,6 +32,7 @@
 
 # Imports
 import lockin
+import numpy as np
 import pyvisa
 
 
@@ -42,7 +43,7 @@ def auto_time_const(sr860, freq, atten_2f, filterType):
 
 
 def dmma_time_const(
-    lockin: lockin.devices.Lockin,
+    lockins: tuple[lockin.devices.Lockin],
     min_ampl: float,
     ampl: float,
     freq: float,
@@ -54,9 +55,12 @@ def dmma_time_const(
     atten = min(atten_2f[1], atten_2f[0] + 20*np.log10(ampl / min_ampl))
     octets = atten / filterType
     tau_p = 2 ** octets / (4 * np.pi * freq)
-    tc = lockin.time_const_idx(tau_p)
-    lockin.time_const = tc
-    return lockin.time_const_value(tc)
+    tc_vals = []
+    for lockin in lockins:
+        tc = lockin.time_const_idx(tau_p)
+        lockin.time_const = tc
+        tc_vals.append(lockin.time_const_value(tc))
+    return max(tc_vals)
 
 
 def connect_to_lockin(model):
@@ -171,26 +175,26 @@ def updateView(
     if N_lines == N_complete:
         # Need to add a new curve
         colors = parula(n_ampl);
-        plot(ax1, data(rowA:rowB, 2), data(rowA:rowB, 3), '.-', 'Color', colors(i_A, :));
-        plot(ax2, data(rowA:rowB, 2), data(rowA:rowB, 4), '.-', 'Color', colors(i_A, :));
+        plot(ax1, data[rowA:rowB, 2], data[rowA:rowB, 3], '.-')#, 'Color', colors(i_A, :))
+        plot(ax2, data[rowA:rowB, 2], data[rowA:rowB, 4], '.-')#, 'Color', colors(i_A, :))
     elif N_lines == N_complete + 1:
         # Update the curve for the current sweep
-        set(chil1(1), 'XData', data(rowA:rowB, 2));
-        set(chil1(1), 'YData', data(rowA:rowB, 3));
-        set(chil2(1), 'XData', data(rowA:rowB, 2));
-        set(chil2(1), 'YData', data(rowA:rowB, 4));
+        plt.set(chil1[0], 'XData', data[rowA:rowB, 1])
+        plt.set(chil1[0], 'YData', data[rowA:rowB, 2])
+        plt.set(chil2[0], 'XData', data[rowA:rowB, 1])
+        plt.set(chil2[0], 'YData', data[rowA:rowB, 3])
     else:
         # This case should not occur; print a warning
         print("Number of plot curves does not match number of sweeps.\n")
 
 
-def update_view_dmma(ax1, data, row):
+def update_view_dmma(h, data_d, data_f, row):
     """Update the data view."""
 
-    if row == 0:
-        ax1.scatter(data[0, 0], data[0, 1], 'o', c=data[0, 2] / data[0, 3])
+    if np.allclose(data_d[:, 2], 0):
+        denom = np.ones_like(data_d[:, 2])
     else:
-        h = ax1.get_children()[0]
-        h.set_xdata(data[:row + 1, 0])
-        h.set_ydata(data[:row + 1, 1])
-        h.set_cdata(data[:row + 1, 2] / data[:row + 1, 3])
+        color = data_f[:, 2] / data_d[:, 2]
+        color[np.isclose(data_d[:, 2], 0)] = data_f[row, 2] / data_d[row, 2]
+    h.set_offsets(data_d[:, (1, 0)])
+    h.set_array(color)
