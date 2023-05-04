@@ -205,6 +205,7 @@ def dmma_sweep(
         lockin.sync_filt = True
     lockins[0].ref_source = "int"
     lockins[1].ref_source = "ext"
+    lockins[1].ref_trig = "POS TTL"
 
     # Create figure for visualization
     plt.ion()
@@ -212,7 +213,15 @@ def dmma_sweep(
     plt.subplot(1, 1, 1)
     plt.xlabel('Frequency [Hz]')
     plt.ylabel('Amplitude [V]')
-    plt.show(block=False)
+    min_x, max_x = np.log10(limits[1][0]), np.log10(limits[1][1])
+    min_y, max_y = np.log10(limits[0][0]), np.log10(limits[0][1])
+    dec_x = max_x - min_x
+    dec_y = max_y - min_y
+    plt.xlim([10**(min_x - 0.05*dec_x), 10**(max_x + 0.05*dec_x)])
+    plt.ylim([10**(min_y - 0.05*dec_y), 10**(max_y + 0.05*dec_y)])
+    plt.xscale("log")
+    plt.yscale("log")
+    # plt.show(block=False)
 
     # Automatic time constant and wait time
     autoTimeConst = True     # Set this variable to False to disable auto time-constant
@@ -241,17 +250,33 @@ def dmma_sweep(
         # Loop over frequency
         for i_f in range(n[0][1]):
             # Set the current frequency
-            freq = all_freq[i_f]
-            freq_actual = lockins[0].ref_freq = freq
+            lockins[0].ref_freq = all_freq[i_f]
+            freq_actual = lockins[0].ref_freq
 
             # Pause and wait for lockin output to settle
             if autoTimeConst:
                 waitTime = wait_factor * dmma_time_const(
-                    lockins, limits[0][0], ampl_actual, freq, atten_2f, slope
+                    lockins, limits[0][0], ampl_actual, freq_actual, atten_2f, slope
                 )
-                time.sleep(waitTime)  # Comment this line to use auto wait-time
-            else:
-                time.sleep(waitTime)
+            time.sleep(waitTime)
+
+            # Ensure that lockins[1] is phase-locked to lockins[0]
+            if lockins[1].status_unlock:
+                # lockins[1] came unlocked at some point in the past
+                # Check if it is currently locked to the frequency:
+                locked = False
+                for i in range(3):
+                    freq1 = lockins[1].ref_freq
+                    if abs(freq1 - freq_actual) / freq_actual > 0.001:
+                        time.sleep(waitTime)
+                    else:
+                        locked = True
+                        break
+                if locked:
+                    # Wait an extra amount to time to allow output to settle
+                    time.sleep(waitTime)
+                else:
+                    raise RuntimeError("Could not achieve phase-lock between lock-ins")
 
             # Measure amplitude and phase
             displ = lockins[0].get_ampl_phas()
@@ -314,11 +339,27 @@ def dmma_sweep(
             # Pause and wait for lockin output to settle
             if autoTimeConst:
                 waitTime = wait_factor * dmma_time_const(
-                    lockins, limits[0][0], ampl_actual, freq, atten_2f, slope
+                    lockins, limits[0][0], ampl_actual, freq_actual, atten_2f, slope
                 )
-                time.sleep(waitTime)  # Comment this line to use auto wait-time
-            else:
-                time.sleep(waitTime)
+            time.sleep(waitTime)
+
+            # Ensure that lockins[1] is phase-locked to lockins[0]
+            if lockins[1].status_unlock:
+                # lockins[1] came unlocked at some point in the past
+                # Check if it is currently locked to the frequency:
+                locked = False
+                for i in range(3):
+                    freq1 = lockins[1].ref_freq
+                    if abs(freq1 - freq_actual) / freq_actual > 0.001:
+                        time.sleep(waitTime)
+                    else:
+                        locked = True
+                        break
+                if locked:
+                    # Wait an extra amount to time to allow output to settle
+                    time.sleep(waitTime)
+                else:
+                    raise RuntimeError("Could not achieve phase-lock between lock-ins")
 
             # Measure amplitude and phase
             displ = lockins[0].get_ampl_phas()

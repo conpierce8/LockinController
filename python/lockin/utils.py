@@ -35,6 +35,8 @@ import lockin
 import numpy as np
 import pyvisa
 
+from matplotlib import pyplot as plt
+
 
 # Functions
 def auto_time_const(sr860, freq, atten_2f, filterType):
@@ -60,6 +62,7 @@ def dmma_time_const(
         tc = lockin.time_const_idx(tau_p)
         lockin.time_const = tc
         tc_vals.append(lockin.time_const_value(tc))
+    print(atten, tc_vals)
     return max(tc_vals)
 
 
@@ -191,10 +194,10 @@ def updateView(
 def update_view_dmma(h, data_d, data_f, row):
     """Update the data view."""
 
-    if np.allclose(data_d[:, 2], 0):
-        denom = np.ones_like(data_d[:, 2])
-    else:
-        color = data_f[:, 2] / data_d[:, 2]
-        color[np.isclose(data_d[:, 2], 0)] = data_f[row, 2] / data_d[row, 2]
-    h.set_offsets(data_d[:, (1, 0)])
+    color = data_f[:, 2] / (data_d[:, 2] + 1e-9)
+    color[np.isclose(data_d[:, 2], 0)] = data_f[row, 2] / data_d[row, 2]
+    offsets = data_d[:, (1, 0)]
+    offsets[np.isclose(data_d[:, 2], 0), :] = 1E-9
+    h.set_offsets(offsets)
     h.set_array(color)
+    plt.pause(0.01)

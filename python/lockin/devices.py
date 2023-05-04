@@ -128,7 +128,7 @@ class Lockin:
         if np.all(self._time_const > value):
             raise ValueError("Requested tc is too small.")
         else:
-            return np.amax(np.arange(self._time_const.size)[self._time_const < value])
+            return np.amin(np.arange(self._time_const.size)[self._time_const > value])
 
     def _connect(self, model):
         rm = pyvisa.ResourceManager()
@@ -136,6 +136,7 @@ class Lockin:
         candidates = []
         for i, desc in enumerate(res):
             dev = rm.open_resource(desc)
+            dev.clear()
             idn = dev.query("*IDN?").split(",")
             if idn[0] == "Stanford_Research_Systems" and idn[1] == model:
                 if self.sn is None:
@@ -280,6 +281,32 @@ class SR830(Lockin):
         self._visa_dev.write("FMOD {0:d}".format(value))
 
     @property
+    def ref_trig(self):
+        resp = self._visa_dev.query("RSLP?")
+        val = int(resp)
+        if val == 0:
+            return "SINE"
+        elif val == 1:
+            return "POS TTL"
+        elif val == 2:
+            return "NEG TTL"
+        else:
+            raise self._unexpected(resp)
+
+    @ref_trig.setter
+    def ref_trig(self, trig):
+        _t = trig.lower()
+        if _t in ("sine", "sin"):
+            self._visa_dev.write("RSLP 0")
+        elif _t in ("pos ttl", "pos", "default"):
+            self._visa_dev.write("RSLP 1")
+        elif _t in ("neg ttl", "neg"):
+            self._visa_dev.write("RSLP 2")
+        else:
+            raise ValueError("trig must be SINE, POS TTL, or NEG TTL")
+
+
+    @property
     def sens(self):
         resp = self._visa_dev.query("SENS?")
         val = int(resp)
@@ -299,6 +326,17 @@ class SR830(Lockin):
             raise IndexError("idx must be <= 26")
         else:
             return self._sens_arr[idx]
+
+    @property
+    def status_unlock(self):
+        resp = self._visa_dev.query("LIAS? 3")
+        val = int(resp)
+        if val == 0:
+            return False
+        elif val == 1:
+            return True
+        else:
+            raise self._unexpected(resp)
 
     @property
     def time_const(self):
@@ -483,6 +521,31 @@ class SR860(Lockin):
         self._visa_dev.write("RSRC {0:d}".format(value))
 
     @property
+    def ref_trig(self):
+        resp = self._visa_dev.query("RTRG?")
+        val = int(resp)
+        if val == 0:
+            return "SINE"
+        elif val == 1:
+            return "POS TTL"
+        elif val == 2:
+            return "NEG TTL"
+        else:
+            raise self._unexpected(resp)
+
+    @ref_trig.setter
+    def ref_trig(self, trig):
+        _t = trig.lower()
+        if _t in ("sine", "sin"):
+            self._visa_dev.write("RTRG 0")
+        elif _t in ("pos ttl", "pos", "default"):
+            self._visa_dev.write("RTRG 1")
+        elif _t in ("neg ttl", "neg"):
+            self._visa_dev.write("RTRG 2")
+        else:
+            raise ValueError("trig must be SINE, POS TTL, or NEG TTL")
+
+    @property
     def ref_input_impedance(self):
         resp = self._visa_dev.query("REFZ?")
         return int(resp)
@@ -516,6 +579,17 @@ class SR860(Lockin):
             raise IndexError("idx must be <= 27")
         else:
             return self._sens_arr[idx]
+
+    @property
+    def status_unlock(self):
+        resp = self._visa_dev.query("LIAS? 3")
+        val = int(resp)
+        if val == 0:
+            return False
+        elif val == 1:
+            return True
+        else:
+            raise self._unexpected(resp)
 
     @property
     def time_const(self):
