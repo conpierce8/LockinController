@@ -189,6 +189,7 @@ class SR830(Lockin):
             1E4, 3E4,
         ]
     )
+    sens_inc = 1
 
     def __init__(self, sn=None):
         super().__init__(None)
@@ -320,9 +321,9 @@ class SR830(Lockin):
             self._visa_dev.write("SENS {0:d}".format(s))
 
     def sens_get_value(self, idx):
-        if i < 0:
+        if idx < 0:
             raise IndexError("idx must be >= 0")
-        elif i > 26:
+        elif idx > 26:
             raise IndexError("idx must be <= 26")
         else:
             return self._sens_arr[idx]
@@ -391,6 +392,7 @@ class SR860(Lockin):
             1E4, 3E4,
         ]
     )
+    sens_inc = -1
 
     def __init__(self, sn=None):
         super().__init__(None)
@@ -573,9 +575,9 @@ class SR860(Lockin):
             self._visa_dev.write("SCAL {0:d}".format(s))
 
     def sens_get_value(self, idx):
-        if i < 0:
+        if idx < 0:
             raise IndexError("idx must be >= 0")
-        elif i > 27:
+        elif idx > 27:
             raise IndexError("idx must be <= 27")
         else:
             return self._sens_arr[idx]

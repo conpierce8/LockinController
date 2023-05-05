@@ -34,7 +34,10 @@
 import lockin
 import numpy as np
 import pyvisa
+import time
+import typing
 
+from lockin import devices
 from matplotlib import pyplot as plt
 
 
@@ -84,22 +87,58 @@ def connect_to_lockin(model):
     raise ValueError(f"No {model} lock-in found.")
 
 
-def get_ampl_phas(sr860, autoSensitivity):
+def get_ampl_phas(lockins, auto_sens, wait_time):
     """Read amplitude and phase from lockin."""
 
+    def _sens_val(lockin, sens):
+        """Get min and max amplitude for a single lockin."""
+        val = lockin.sens_get_value(sens)
+        return 100 * val / 65536, 0.99 * val
+
+    def _sens_vals(lockins, sens):
+        """Get min and max amplitude for multiple lockins."""
+        val = [lockin.sens_get_value(s) for lockin, s in zip(lockins, sens)]
+        return [(100 * x / 65536, 0.99 * x) for x in val]
+
     # Simultaneously acquire amplitude and phase from the SR860 using the SNAP command
-    val_str = sr860.query('SNAP? 2, 3')
+    if isinstance(lockins, devices.Lockin):
+        sens = lockins.sens
+        ampl_min, ampl_max = _sens_val(lockins, sens)
 
-    # Returned value is a comma-separated string. Parse the individual values:
-    substrs = val_str.split(',')
-    outp = float(substrs[0])
-    phas = float(substrs[1])
+        ampl, phas = lockins.get_ampl_phas()
+        # Adjust sensitivity and repeat measurement until the value is within range
+        while auto_sens and (ampl < ampl_min or ampl > ampl_max):
+            if ampl < ampl_min:
+                lockins.sens = sens - lockins.sens_inc
+            elif ampl > ampl_max:
+                lockins.sens = sens + lockins.sens_inc
+            sens = lockins.sens
+            ampl_min, ampl_max = _sens_val(lockins, sens)
+            time.sleep(wait_time)
+            ampl, phas = lockins.get_ampl_phas()
+        return ampl, phas
+    elif isinstance(lockins, typing.Iterable):
+        sens = [lockin.sens for lockin in lockins]
+        minmax = _sens_vals(lockins, sens)
 
-    if autoSensitivity:
-        ##TODO: check outp and adjust sensitivity if needed
-        pass
-
-    return outp, phas
+        ampl_phas = [lockin.get_ampl_phas() for lockin in lockins]
+        while auto_sens and any(
+            [x[0] < lim[0] or x[0] > lim[1] for x, lim in zip(ampl_phas, minmax)]
+        ):
+            for i, (lockin, data, limits) in enumerate(zip(lockins, ampl_phas, minmax)):
+                if data[0] < limits[0]:
+                    lockin.sens = sens[i] - lockin.sens_inc
+                    sens[i] = lockin.sens
+                    minmax[i] = _sens_val(lockin, sens[i])
+                elif data[0] > limits[1]:
+                    lockin.sens = sens[i] + lockin.sens_inc
+                    sens[i] = lockin.sens
+                    minmax[i] = _sens_val(lockin, sens[i])
+            time.sleep(wait_time)
+            ampl_phas = [lockin.get_ampl_phas() for lockin in lockins]
+        return ampl_phas
+    else:
+        raise TypeError("lockins must be Lockin or iterable of Lockins")
 
 
 def set_amplitude(lockin, ampl):

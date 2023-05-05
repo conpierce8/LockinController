@@ -5,7 +5,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-01 15:14:58
-# Modified: 2023-05-01 16:17:04
+# Modified: 2023-05-05 11:29:31
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
@@ -279,8 +279,7 @@ def dmma_sweep(
                     raise RuntimeError("Could not achieve phase-lock between lock-ins")
 
             # Measure amplitude and phase
-            displ = lockins[0].get_ampl_phas()
-            force = lockins[1].get_ampl_phas()
+            displ, force = get_ampl_phas(lockins, autoSensitivity, waitTime)
 
             # Store in the appropriate row of the array
             data_d[row, 0] = ampl_actual
@@ -362,8 +361,7 @@ def dmma_sweep(
                     raise RuntimeError("Could not achieve phase-lock between lock-ins")
 
             # Measure amplitude and phase
-            displ = lockins[0].get_ampl_phas()
-            force = lockins[1].get_ampl_phas()
+            displ, force = get_ampl_phas(lockins, autoSensitivity, waitTime)
 
             # Store in the appropriate row of the array
             data_d[row, 0] = ampl_actual
