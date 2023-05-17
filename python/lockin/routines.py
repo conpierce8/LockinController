@@ -168,6 +168,7 @@ def dmma_sweep(
     n: tuple[tuple[int, int], tuple[int, int]] = ((3, 201), (31, 9)),
     filename: str = "Test",
     models: tuple[str, str] = ("SR830", "SR860"),
+    atten_2f: tuple[float, float] = (-160, -80),
 ):
     """Measure displacement and force for DMMA using two lock-in amplifiers.
     
@@ -181,6 +182,8 @@ def dmma_sweep(
         File in which to save the data
     models
         SRS lock-in models to use for displacement and force measurements
+    atten_2f
+        Desired attenuation of the 2f component [dB]
     """
 
     # Establish connection to the lock-in using VISA
@@ -225,13 +228,15 @@ def dmma_sweep(
 
     # Automatic time constant and wait time
     autoTimeConst = True     # Set this variable to False to disable auto time-constant
-    atten_2f = (-160, -80)   # Desired attenuation of the 2f component [dB]
     filterType = 3           # Filter type (used to calculate time constant)
     waitTime = 1             # Default wait time [sec]
     slope, wait_factor = filt_slopes[filt_idx]
 
     # Automatic sensitivity control
     autoSensitivity = True   #  Set this variable to 1 to enable auto sensitivity
+
+    # Detecting frequency lock
+    n_lock = 5
 
     # Main execution loop
     n_all = n[0][0] * n[0][1]
@@ -258,25 +263,17 @@ def dmma_sweep(
                 waitTime = wait_factor * dmma_time_const(
                     lockins, limits[0][0], ampl_actual, freq_actual, atten_2f, slope
                 )
-            time.sleep(waitTime)
 
             # Ensure that lockins[1] is phase-locked to lockins[0]
             if lockins[1].status_unlock:
-                # lockins[1] came unlocked at some point in the past
-                # Check if it is currently locked to the frequency:
-                locked = False
-                for i in range(3):
-                    freq1 = lockins[1].ref_freq
-                    if abs(freq1 - freq_actual) / freq_actual > 0.001:
-                        time.sleep(waitTime)
-                    else:
-                        locked = True
-                        break
-                if locked:
-                    # Wait an extra amount to time to allow output to settle
-                    time.sleep(waitTime)
-                else:
-                    raise RuntimeError("Could not achieve phase-lock between lock-ins")
+                status = np.full((n_lock, ), True, dtype=bool)
+                while np.any(status):
+                    time.sleep(0.03)
+                    status[:-1] = status[1:]
+                    status[-1] = lockins[1].status_unlock
+
+            # Wait for output to settle
+            time.sleep(waitTime)
 
             # Measure amplitude and phase
             displ, force = get_ampl_phas(lockins, autoSensitivity, waitTime)
@@ -340,26 +337,18 @@ def dmma_sweep(
                 waitTime = wait_factor * dmma_time_const(
                     lockins, limits[0][0], ampl_actual, freq_actual, atten_2f, slope
                 )
-            time.sleep(waitTime)
 
             # Ensure that lockins[1] is phase-locked to lockins[0]
             if lockins[1].status_unlock:
-                # lockins[1] came unlocked at some point in the past
-                # Check if it is currently locked to the frequency:
-                locked = False
-                for i in range(3):
-                    freq1 = lockins[1].ref_freq
-                    if abs(freq1 - freq_actual) / freq_actual > 0.001:
-                        time.sleep(waitTime)
-                    else:
-                        locked = True
-                        break
-                if locked:
-                    # Wait an extra amount to time to allow output to settle
-                    time.sleep(waitTime)
-                else:
-                    raise RuntimeError("Could not achieve phase-lock between lock-ins")
+                status = np.full((n_lock, ), True, dtype=bool)
+                while np.any(status):
+                    time.sleep(0.03)
+                    status[:-1] = status[1:]
+                    status[-1] = lockins[1].status_unlock
 
+            # Wait for output to settle
+            time.sleep(waitTime)
+            
             # Measure amplitude and phase
             displ, force = get_ampl_phas(lockins, autoSensitivity, waitTime)
 
