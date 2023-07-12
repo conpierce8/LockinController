@@ -5,7 +5,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-01 15:42:15
-# Modified: 2023-05-01 16:26:20
+# Modified: 2023-07-12 13:19:33
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
@@ -65,7 +65,7 @@ def dmma_time_const(
         tc = lockin.time_const_idx(tau_p)
         lockin.time_const = tc
         tc_vals.append(lockin.time_const_value(tc))
-    print(atten, tc_vals)
+    # print(atten, tc_vals)
     return max(tc_vals)
 
 
