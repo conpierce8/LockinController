@@ -5,7 +5,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-01 15:14:58
-# Modified: 2023-05-05 11:29:31
+# Modified: 2023-07-14 05:30:18
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
@@ -388,5 +388,7 @@ def dmma_sweep(
         delimiter="\t",
     )
 
+    lockins[0].ref_ampl = limits[0][0]
+    lockins[0].ref_freq = limits[1][0]
     for lockin in lockins:
         lockin.disconnect()
