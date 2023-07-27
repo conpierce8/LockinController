@@ -1,11 +1,14 @@
-# __main__.py
+#! python3
+# -*- coding: utf-8 -*-
+#
+# demo_freq_sweep.py
 # encoding: utf-8
 #
 # Simple script for performing parametric sweeps with SR860 lock-in amplifier.
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-01 15:14:58
-# Modified: 2023-05-01 16:17:04
+# Modified: 2023-07-27 14:30:03
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
