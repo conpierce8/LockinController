@@ -7,7 +7,11 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-02 10:49:18
+<<<<<<< HEAD
 # Modified: 2023-09-26 15:18:59
+=======
+# Modified: 2023-07-27 14:30:15
+>>>>>>> 93fb68d8c7f2e8105387cb9b2b80bc36c218a9fd
 #
 # Copyright (c) 2023 Connor D. Pierce
 #

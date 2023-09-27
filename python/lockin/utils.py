@@ -1,3 +1,6 @@
+#! python3
+# -*- coding: utf-8 -*-
+#
 # utils.py
 # encoding: utf-8
 #
@@ -5,7 +8,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-01 15:42:15
-# Modified: 2023-07-12 13:19:33
+# Modified: 2023-07-27 14:30:08
 #
 # Copyright (c) 2023 Connor D. Pierce
 #

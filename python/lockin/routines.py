@@ -1,3 +1,6 @@
+#! python3
+# -*- coding: utf-8 -*-
+#
 # routines.py
 # encoding: utf-8
 #
@@ -5,7 +8,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-01 15:14:58
-# Modified: 2023-09-26 15:31:31
+# Modified: 2023-09-26 19:20:28
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
