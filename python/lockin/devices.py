@@ -7,7 +7,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-02 10:49:18
-# Modified: 2023-05-03 14:36:47
+# Modified: 2023-09-26 15:18:59
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
@@ -488,6 +488,31 @@ class SR860(Lockin):
             self._visa_dev.write("ICUR 1")
         else:
             raise ValueError("Invalid input config: '{0:s}'".format(config))
+
+    @property
+    def input_range(self):
+        resp1 = self._visa_dev.query("IRNG?")
+        return int(resp1)
+
+    @input_range.setter
+    def input_range(self, rng):
+        if isinstance(rng, int):
+            if rng < 0 or rng > 4:
+                raise ValueError("Invalid input range: {0:d}".format(rng))
+            else:
+                self._visa_dev.write("IRNG {0:d}".format(rng))
+        elif isinstance(rng, str):
+            if rng in ("1Volt", "300Mvolt", "100Mvolt", "30Mvolt", "10Mvolt"):
+                self._visa_dev.write("IRNG {0:s}".format(rng))
+            else:
+                raise ValueError("Invalid input range: '{0:s}'".format(rng))
+        else:
+            raise TypeError("Invalid type for input range")
+
+    @property
+    def input_level(self):
+        resp1 = self._visa_dev.query("ILVL?")
+        return int(resp1)
 
     @property
     def ref_phase(self):

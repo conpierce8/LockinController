@@ -5,7 +5,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-01 15:14:58
-# Modified: 2023-07-14 05:30:18
+# Modified: 2023-09-26 15:31:31
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
@@ -247,6 +247,28 @@ def dmma_sweep(
     all_ampl = np.logspace(np.log10(limits[0][0]), np.log10(limits[0][1]), n[0][0])
     all_freq = np.logspace(np.log10(limits[1][0]), np.log10(limits[1][1]), n[0][1])
     h = plt.scatter(data_d[:, 0], data_d[:, 1], c=data_d[:, 2])
+
+    check_input_levels = [isinstance(dev, SR860) for dev in lockins]
+    irange = [
+        lockins[i].input_range if check_input_levels[i] else None
+        for i in range(len(lockins))
+    ]
+
+    def _check_input_levels():
+        for i in range(len(lockins)):
+            if check_input_levels[i]:
+                ilevel = lockins[i].input_level
+                while ilevel < 3 and irange[i] < 4:
+                    irange[i] += 1
+                    lockins[i].input_range = irange[i]
+                    time.sleep(1)
+                    ilevel = lockins[i].input_level
+                while ilevel == 4 and irange[i] > 0:
+                    irange[i] -= 1
+                    lockins[i].input_range = irange[i]
+                    time.sleep(1)
+                    ilevel = lockins[i].input_level
+
     for i_A in range(n[0][0]):
         # Set the current amplitude
         lockins[0].ref_ampl = all_ampl[i_A]
@@ -273,6 +295,7 @@ def dmma_sweep(
                     status[-1] = lockins[1].status_unlock
 
             # Wait for output to settle
+            _check_input_levels()
             time.sleep(waitTime)
 
             # Measure amplitude and phase
@@ -347,6 +370,7 @@ def dmma_sweep(
                     status[-1] = lockins[1].status_unlock
 
             # Wait for output to settle
+            _check_input_levels()
             time.sleep(waitTime)
             
             # Measure amplitude and phase
