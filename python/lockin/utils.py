@@ -8,7 +8,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-01 15:42:15
-# Modified: 2023-11-08 15:29:57
+# Modified: 2023-11-08 16:12:33
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
@@ -170,7 +170,7 @@ def get_ampl_phas(lockins, auto_sens, wait_time):
         while auto_sens and any(
             [
                 (not out_of_range[i])
-                and (ampl_phas[i][0] < minmax[0] or ampl_phas[i][0] > minmax[1])
+                and (ampl_phas[i][0] < minmax[i][0] or ampl_phas[i][0] > minmax[i][1])
                 for i in range(len(ampl_phas))
             ]
         ):
