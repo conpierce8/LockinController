@@ -7,7 +7,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-02 10:49:18
-# Modified: 2023-09-27 09:48:41
+# Modified: 2023-11-08 14:44:11
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
@@ -43,6 +43,10 @@ class Lockin:
 
     def __init__(self, visa_dev):
         self._visa_dev = visa_dev
+
+    @property
+    def idn(self):
+        return self._visa_dev.query("*IDN?").strip()
 
     @property
     def visa_dev(self):

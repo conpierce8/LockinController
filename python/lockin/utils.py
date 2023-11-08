@@ -8,7 +8,7 @@
 #
 # Author:   Connor D. Pierce
 # Created:  2023-05-01 15:42:15
-# Modified: 2023-07-27 14:30:08
+# Modified: 2023-11-08 15:03:36
 #
 # Copyright (c) 2023 Connor D. Pierce
 #
@@ -35,6 +35,7 @@
 
 # Imports
 import lockin
+import logging
 import numpy as np
 import pyvisa
 import time
@@ -42,6 +43,16 @@ import typing
 
 from lockin import devices
 from matplotlib import pyplot as plt
+
+
+# Logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel("WARNING")
+if len(logger.handlers) == 0:
+    hdlr = logging.StreamHandler()
+    hdlr.setFormatter(logging.Formatter("{levelname}: {message}", style="{"))
+    logger.addHandler(hdlr)
 
 
 # Functions
@@ -103,6 +114,11 @@ def get_ampl_phas(lockins, auto_sens, wait_time):
         val = [lockin.sens_get_value(s) for lockin, s in zip(lockins, sens)]
         return [(100 * x / 65536, 0.99 * x) for x in val]
 
+    ampl_err_msg = (
+        "Unable to find appropriate sensitivity range for lockin '{lockin}': "
+        "ampl={ampl} is too {condition}. (FREQ={ref_freq} SINE_OUT={ref_ampl}"
+    )
+
     # Simultaneously acquire amplitude and phase from the SR860 using the SNAP command
     if isinstance(lockins, devices.Lockin):
         sens = lockins.sens
@@ -110,11 +126,36 @@ def get_ampl_phas(lockins, auto_sens, wait_time):
 
         ampl, phas = lockins.get_ampl_phas()
         # Adjust sensitivity and repeat measurement until the value is within range
+        
         while auto_sens and (ampl < ampl_min or ampl > ampl_max):
             if ampl < ampl_min:
-                lockins.sens = sens - lockins.sens_inc
+                try:
+                    lockins.sens = sens - lockins.sens_inc
+                except ValueError:
+                    logger.warning(
+                        ampl_err_msg.format(
+                            ampl=ampl,
+                            condition="small",
+                            ref_freq=lockins.ref_freq,
+                            ref_ampl=lockins.ref_ampl,
+                            lockin=lockins.idn,
+                        )
+                    )
+                    break
             elif ampl > ampl_max:
-                lockins.sens = sens + lockins.sens_inc
+                try:
+                    lockins.sens = sens + lockins.sens_inc
+                except ValueError:
+                    logger.warning(
+                        ampl_err_msg.format(
+                            ampl=ampl,
+                            condition="large",
+                            ref_freq=lockins.ref_freq,
+                            ref_ampl=lockins.ref_ampl,
+                            lockin=lockins.idn,
+                        )
+                    )
+                    break
             sens = lockins.sens
             ampl_min, ampl_max = _sens_val(lockins, sens)
             time.sleep(wait_time)
@@ -128,15 +169,46 @@ def get_ampl_phas(lockins, auto_sens, wait_time):
         while auto_sens and any(
             [x[0] < lim[0] or x[0] > lim[1] for x, lim in zip(ampl_phas, minmax)]
         ):
+            out_of_range = [False for _ in lockins]
             for i, (lockin, data, limits) in enumerate(zip(lockins, ampl_phas, minmax)):
+                if out_of_range[i]:
+                    continue
                 if data[0] < limits[0]:
-                    lockin.sens = sens[i] - lockin.sens_inc
+                    try:
+                        lockin.sens = sens[i] - lockin.sens_inc
+                    except ValueError as ve:
+                        logger.warning(
+                            ampl_err_msg.format(
+                                ampl=data[0],
+                                condition="small",
+                                ref_freq=[l.ref_freq for l in lockins],
+                                ref_ampl=[l.ref_ampl for l in lockins],
+                                lockin=lockin.idn,
+                            )
+                        )
+                        out_of_range[i] = True
+                        continue
                     sens[i] = lockin.sens
                     minmax[i] = _sens_val(lockin, sens[i])
                 elif data[0] > limits[1]:
-                    lockin.sens = sens[i] + lockin.sens_inc
+                    try:
+                        lockin.sens = sens[i] + lockin.sens_inc
+                    except ValueError as ve:
+                        logger.warning(
+                            ampl_err_msg.format(
+                                ampl=data[0],
+                                condition="large",
+                                ref_freq=[l.ref_freq for l in lockins],
+                                ref_ampl=[l.ref_ampl for l in lockins],
+                                lockin=lockin.idn,
+                            )
+                        )
+                        out_of_range[i] = True
+                        continue
                     sens[i] = lockin.sens
                     minmax[i] = _sens_val(lockin, sens[i])
+            if all(out_of_range):
+                break
             time.sleep(wait_time)
             ampl_phas = [lockin.get_ampl_phas() for lockin in lockins]
         return ampl_phas
