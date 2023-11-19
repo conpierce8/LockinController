@@ -65,7 +65,9 @@ should work).
     ```
 
     Note that the LockinController source code contains a folder named `python`; this
-    should be the last folder that you include in the path.
+    should be the last folder that you include in the path. For mamba users, note that
+    as of version 1.5.3, mamba does not support the `develop` command, so you must use
+    conda for this step.
 
 To test your installation, start a Python interpreter by and enter the statement:
 
